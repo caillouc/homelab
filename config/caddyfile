@@ -1,0 +1,15 @@
+config-vpn.clsn.fr {
+	reverse_proxy wg-easy:80
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+	# tls internal
+}
+
+# pihole.clsn.fr {
+# 	reverse_proxy http://192.168.1.175:5353
+# 	# tls {
+# 	# 	dns infomaniak {env.INFOMANIAK_API_TOKEN}
+# 	# }
+# 	tls internal
+# }
