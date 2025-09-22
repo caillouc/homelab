@@ -46,6 +46,50 @@ services:
       wg-easy:
 
 
+  dnsmasq:
+    image: andyshinn/dnsmasq:latest
+    container_name: dnsmasq
+    restart: unless-stopped
+#   ports:
+#     - "53:53/udp"
+#     - "53:53/tcp"
+    volumes:
+      - ./config/dnsmasq.conf:/etc/dnsmasq.conf
+    networks:
+      wg-easy:
+        ipv4_address: 10.10.0.53
+
+  samba:
+    image: dperson/samba
+    container_name: samba
+    restart: unless-stopped
+    ports:
+      - "137:137/udp"
+      - "138:138/udp"
+      - "139:139/tcp"
+      - "445:445/tcp"
+    volumes:
+      - /data/shared:/shared
+    command: >
+      -s "Shared;/shared;yes;no;no"
+      -u "$SAMBA_USER;$SAMBA_PASSWORD"
+      -p
+    env_file:
+      - .env
+
+networks:
+  wg-easy:
+    name: wg-easy
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+        - subnet: fdcc:ad94:bacf:61a3::/64
+
+
+volumes:
+  caddy_data:
+  caddy_config:
+
 # pihole:
 #   image: pihole/pihole
 #   container_name: pihole
@@ -64,30 +108,3 @@ services:
 #   networks:
 #     wg-easy:
 #       ipv4_address: 10.10.0.53
-
-  dnsmasq:
-    image: andyshinn/dnsmasq:latest
-    container_name: dnsmasq
-    restart: unless-stopped
-#   ports:
-#     - "53:53/udp"
-#     - "53:53/tcp"
-    volumes:
-      - ./config/dnsmasq.conf:/etc/dnsmasq.conf
-    networks:
-      wg-easy:
-        ipv4_address: 10.10.0.53
-
-networks:
-  wg-easy:
-    name: wg-easy
-    ipam:
-      config:
-        - subnet: 10.10.0.0/24
-        - subnet: fdcc:ad94:bacf:61a3::/64
-
-
-volumes:
-  caddy_data:
-  caddy_config:
-
