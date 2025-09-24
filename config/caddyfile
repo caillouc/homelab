@@ -14,6 +14,14 @@ photo.clsn.fr {
 	# tls internal
 }
 
+note.clsn.fr {
+	reverse_proxy joplin:22300
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+	# tls internal
+}
+
 # pihole.clsn.fr {
 # 	reverse_proxy http://192.168.1.175:5353
 # 	# tls {
