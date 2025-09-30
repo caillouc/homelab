@@ -22,6 +22,13 @@ note.clsn.fr {
 	# tls internal
 }
 
+monitor.clsn.fr {
+	reverse_proxy uptime-kuma:3001
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+}
+
 # pihole.clsn.fr {
 # 	reverse_proxy http://192.168.1.175:5353
 # 	# tls {

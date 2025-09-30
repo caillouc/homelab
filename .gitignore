@@ -1,3 +1,4 @@
 .env
 config/wg-easy
 immich/postgres
+uptime-kuma-data
