@@ -7,7 +7,7 @@ config-vpn.clsn.fr {
 }
 
 photo.clsn.fr {
-	reverse_proxy immich_server:2283
+	reverse_proxy immich-server:2283
 	tls {
 		dns infomaniak {env.INFOMANIAK_API_TOKEN}
 	}
@@ -24,6 +24,13 @@ note.clsn.fr {
 
 monitor.clsn.fr {
 	reverse_proxy uptime-kuma:3001
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+}
+
+flash.clsn.fr {
+	reverse_proxy flash-backend:3030
 	tls {
 		dns infomaniak {env.INFOMANIAK_API_TOKEN}
 	}
