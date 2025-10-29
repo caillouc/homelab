@@ -75,6 +75,9 @@ services:
       -p
     env_file:
       - .env
+    environment:
+      - USERID=1001
+      - GROUPID=1001
 
   joplin:
     image: joplin/server:latest
@@ -95,6 +98,7 @@ services:
     volumes:
       - /data/joplin/storage:/data
       - /data/joplin/database:/database
+    user: "1001:1001"
 
 
   uptime-kuma:
