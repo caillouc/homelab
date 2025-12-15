@@ -1,5 +1,6 @@
 # Homelab setup
 
+* [ZFS](https://github.com/openzfs/zfs) : File system
 * [Wireguard](https://www.wireguard.com/) : vpn server
 * [Wg-easy](https://github.com/wg-easy/wg-easy) : vpn admin frontend
 * [Caddy](https://github.com/caddyserver/caddy) : reverse proxy
