@@ -77,7 +77,7 @@ services:
       - .env
     environment:
       - USERID=1001
-      - GROUPID=1001
+      - GROUPID=1002
 
   joplin:
     image: joplin/server:latest

@@ -5,11 +5,14 @@ set -euo pipefail
 # CONFIG
 # ==========================
 SOURCE_POOL="data"
-TARGET_HOST="pierre@192.168.1.30"
+TARGET_IP="10.8.0.30"
 TARGET_DATASET="magenta-backup/data"
 SNAP_PREFIX="backup"
 LOGFILE="/tmp/zfs-backup.log"
 RETENTION_DAYS=30
+MBUFFER_PORT=9090                   # TCP port for mbuffer over VPN
+MBUFFER_MEM="1G"
+MBUFFER_BLOCK="128k"
 
 DATE="$(date +%F)"
 SNAPSHOT="${SOURCE_POOL}@${SNAP_PREFIX}-${DATE}"
@@ -20,8 +23,20 @@ exec >> "$LOGFILE" 2>&1
 
 trap 'cp "$LOGFILE" /data/shared/logs/zfs-backup.log' EXIT
 
+echo "Target host reachable. Proceeding with mbuffer transfer..."
+
 echo "=============================="
 echo "$(date) - Backup started"
+
+# ==========================
+# VERIFY TARGET HOST REACHABILITY
+# ==========================
+echo "Verifying target host connectivity via SSH..."
+
+if ! ssh -o BatchMode=yes -o ConnectTimeout=5 "$TARGET_IP" 'echo 2>&1' >/dev/null; then
+    echo "ERROR: Cannot connect to $TARGET_IP via SSH. Aborting transfer."
+    exit 1
+fi
 
 # ==========================
 # CREATE SNAPSHOT
@@ -45,12 +60,29 @@ PREV_SNAPSHOT=$(zfs list -t snapshot -o name -s creation | \
 # ==========================
 echo "Sending snapshot..."
 
-if [ -n "$PREV_SNAPSHOT" ]; then
-    echo "Incremental from $PREV_SNAPSHOT to $SNAPSHOT"
-    sudo zfs send -R -v -i "$PREV_SNAPSHOT" "$SNAPSHOT" | \
-    mbuffer -q -Q -m 1G -s 128k | \
-    ssh "$TARGET_HOST" "mbuffer -q -Q -m 1G -s 128k | sudo zfs receive -u $TARGET_DATASET"
+send_snapshot() {
+    if [ -n "$PREV_SNAPSHOT" ]; then
+        echo "Incremental from $PREV_SNAPSHOT to $SNAPSHOT"
 
+        # Safe since connection done thanks to the vpn
+        sudo zfs send -R -v -i "$PREV_SNAPSHOT" "$SNAPSHOT" | \
+        mbuffer -q -Q -m "$MBUFFER_MEM" -s "$MBUFFER_BLOCK" -O "$TARGET_IP:$MBUFFER_PORT"
+    else
+        echo "No previous snapshot, doing full send"
+        sudo zfs send -R -v "$SNAPSHOT" | \
+        mbuffer -q -Q -m "$MBUFFER_MEM" -s "$MBUFFER_BLOCK" -O "$TARGET_IP:$MBUFFER_PORT"
+    fi
+}
+
+if send_snapshot; then
+    echo "Snapshot $SNAPSHOT successfully sent."
+else
+    echo "ERROR: Snapshot send failed. Destroying incomplete snapshot."
+    sudo zfs destroy -r "$SNAPSHOT"
+    exit 1
+fi
+
+if [ -n "$PREV_SNAPSHOT" ]; then
     echo "Files changed:"
 
     # Loop over all datasets recursively
@@ -68,14 +100,8 @@ if [ -n "$PREV_SNAPSHOT" ]; then
             sudo zfs diff -FH "$PREV_SNAPSHOT" "$CUR_SNAPSHOT"
         fi
     done
-
-
-else
-    echo "No previous snapshot, doing full send"
-    sudo zfs send -R -v "$SNAPSHOT" | \
-    mbuffer -q -Q -m 1G -s 128k | \
-    ssh "$TARGET_HOST" "mbuffer -q -Q -m 1G -s 128k | sudo zfs receive -u $TARGET_DATASET"
 fi
+
 
 echo "Snapshot sent successfully"
 
