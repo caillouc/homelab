@@ -10,6 +10,7 @@ TARGET_DATASET="magenta-backup/data"
 SNAP_PREFIX="backup"
 LOGFILE="/var/log/zfs-backup/zfs-backup.log"
 RETENTION_DAYS=30
+KNOWN_HOSTS="/etc/ssh/ssh_known_hosts"
 MBUFFER_PORT=9090                   # TCP port for mbuffer over VPN
 MBUFFER_MEM="1G"
 MBUFFER_BLOCK="128k"
@@ -33,7 +34,9 @@ echo "$(date) - Backup started"
 # ==========================
 echo "Verifying target host connectivity via SSH..."
 
-if ! ssh -o BatchMode=yes -o ConnectTimeout=5 "$TARGET_IP" 'echo 2>&1' >/dev/null; then
+if ! ssh -o BatchMode=yes -o ConnectTimeout=5 \
+    -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$KNOWN_HOSTS" \
+    "$TARGET_IP" 'echo 2>&1' >/dev/null; then
     echo "ERROR: Cannot connect to $TARGET_IP via SSH. Aborting transfer."
     exit 1
 fi
