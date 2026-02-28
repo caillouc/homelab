@@ -23,7 +23,6 @@ services:
     networks:
       wg-easy:
         ipv4_address: 10.10.0.10
-        ipv6_address: fdcc:ad94:bacf:61a3::2a
 
   caddy:
     build:
