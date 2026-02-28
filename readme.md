@@ -56,18 +56,4 @@ WantedBy=multi-user.target
 * `zfs-backup.sh` in a cron job a 3am (since immich database backup is at 2am)
 * For magenta to communicate with vpn peer the right ip route should be set : `ip route add 10.8.0.0/24 via 10.10.0.10`
   * This should not be done with `netplan` since `10.10.0.10` resides in a docker network
-  * The following service is then used
-```
-[Unit]
-Description=Add Docker-dependent routes
-After=docker.service
-Requires=docker.service
-
-[Service]
-Type=oneshot
-ExecStart=/home/pierre/homelab/script/docker-routes.sh
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-```
+  * A `crontab` job is run every day at 2am (before the backup) to check if the route exists
