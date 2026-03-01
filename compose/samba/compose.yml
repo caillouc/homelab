@@ -1,0 +1,21 @@
+services:
+  samba:
+    image: dperson/samba
+    container_name: samba
+    restart: unless-stopped
+    ports:
+      - "137:137/udp"
+      - "138:138/udp"
+      - "139:139/tcp"
+      - "445:445/tcp"
+    volumes:
+      - /data/shared:/shared
+    command: >
+      -s "Shared;/shared;yes;no;no"
+      -u "$SAMBA_USER;$SAMBA_PASSWORD"
+      -p
+    env_file:
+      - .env
+    environment:
+      - USERID=1001
+      - GROUPID=1002

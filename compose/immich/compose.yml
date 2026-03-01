@@ -1,0 +1,62 @@
+services:
+  immich-server:
+    container_name: immich-server
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    volumes:
+      - ${UPLOAD_LOCATION}:/data
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    depends_on:
+      - immich-redis
+      - immich-postgres
+    restart: unless-stopped
+    networks:
+      wg-easy:
+        ipv4_address: 10.10.0.13
+    healthcheck:
+      disable: false
+
+  immich-machine-learning:
+    container_name: immich-machine-learning
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    volumes:
+      - model-cache:/cache
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      wg-easy:
+    healthcheck:
+      disable: false
+
+  immich-redis:
+    container_name: immich-redis
+    image: docker.io/valkey/valkey:9@sha256:546304417feac0874c3dd576e0952c6bb8f06bb4093ea0c9ca303c73cf458f63
+    healthcheck:
+      test: redis-cli ping || exit 1
+    networks:
+      wg-easy:
+    restart: unless-stopped
+
+  immich-postgres:
+    container_name: immich-postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    volumes:
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+    shm_size: 128mb
+    networks:
+      wg-easy:
+    restart: unless-stopped
+
+volumes:
+  model-cache:
+
+networks:
+  wg-easy:
+    name: wg-easy

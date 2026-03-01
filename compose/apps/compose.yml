@@ -1,0 +1,48 @@
+services:
+  joplin:
+    image: joplin/server:latest
+    container_name: joplin
+    networks:
+      wg-easy:
+        ipv4_address: 10.10.0.223
+    restart: unless-stopped
+    environment:
+      - APP_PORT=22300
+      - APP_BASE_URL=${JOPLIN_BASE_URL}
+      - DB_CLIENT=sqlite3
+      - SQLITE_DATABASE=/database/joplin.db
+      - STORAGE_DRIVER=Type=Filesystem; Path=/data
+      - TRANSCRIBE_ENABLED=false
+    volumes:
+      - /data/joplin/storage:/data
+      - /data/joplin/database:/database
+    user: "1001:1001"
+    env_file:
+      - .env
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    volumes:
+      - ./uptime-kuma-data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    networks:
+      wg-easy:
+        ipv4_address: 10.10.0.21
+
+  flash-backend:
+    build: /home/pierre/rust-file-server/
+    container_name: flash-backend
+    volumes:
+      - "/data/shared/flash:/app/files"
+    environment:
+      - PORT=3030
+    networks:
+      wg-easy:
+        ipv4_address: 10.10.0.80
+    restart: unless-stopped
+
+networks:
+  wg-easy:
+    name: wg-easy
