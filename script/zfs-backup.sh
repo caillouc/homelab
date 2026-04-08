@@ -14,6 +14,7 @@ KNOWN_HOSTS="/etc/ssh/ssh_known_hosts"
 MBUFFER_PORT=9090                   # TCP port for mbuffer over VPN
 MBUFFER_MEM="1G"
 MBUFFER_BLOCK="128k"
+SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$KNOWN_HOSTS")
 
 DATE="$(date +%F)"
 SNAPSHOT="${SOURCE_POOL}@${SNAP_PREFIX}-${DATE}"
@@ -24,8 +25,6 @@ exec >> "$LOGFILE" 2>&1
 
 trap 'cp "$LOGFILE" /data/shared/logs/zfs-backup.log' EXIT
 
-echo "Target host reachable. Proceeding with mbuffer transfer..."
-
 echo "=============================="
 echo "$(date) - Backup started"
 
@@ -34,9 +33,7 @@ echo "$(date) - Backup started"
 # ==========================
 echo "Verifying target host connectivity via SSH..."
 
-if ! ssh -o BatchMode=yes -o ConnectTimeout=5 \
-    -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$KNOWN_HOSTS" \
-    "$TARGET_IP" 'echo 2>&1' >/dev/null; then
+if ! ssh "${SSH_OPTS[@]}" "$TARGET_IP" 'echo 2>&1' >/dev/null; then
     echo "ERROR: Cannot connect to $TARGET_IP via SSH. Aborting transfer."
     exit 1
 fi
@@ -63,6 +60,22 @@ PREV_SNAPSHOT=$(zfs list -t snapshot -o name -s creation | \
 # ==========================
 echo "Sending snapshot..."
 
+cleanup_remote_snapshot() {
+    local remote_snapshot="${TARGET_DATASET}@${SNAP_PREFIX}-${DATE}"
+
+    echo "Attempting remote cleanup of $remote_snapshot"
+
+    if ssh "${SSH_OPTS[@]}" "$TARGET_IP" "sudo zfs list -t snapshot '$remote_snapshot' >/dev/null 2>&1"; then
+        if ssh "${SSH_OPTS[@]}" "$TARGET_IP" "sudo zfs destroy -r '$remote_snapshot'"; then
+            echo "Remote snapshot cleanup successful: $remote_snapshot"
+        else
+            echo "WARNING: Failed to destroy remote snapshot: $remote_snapshot"
+        fi
+    else
+        echo "No remote snapshot to clean up: $remote_snapshot"
+    fi
+}
+
 send_snapshot() {
     if [ -n "$PREV_SNAPSHOT" ]; then
         echo "Incremental from $PREV_SNAPSHOT to $SNAPSHOT"
@@ -80,7 +93,8 @@ send_snapshot() {
 if send_snapshot; then
     echo "Snapshot $SNAPSHOT successfully sent."
 else
-    echo "ERROR: Snapshot send failed. Destroying incomplete snapshot."
+    echo "ERROR: Snapshot send failed. Cleaning up local and remote snapshots."
+    cleanup_remote_snapshot
     sudo zfs destroy -r "$SNAPSHOT"
     exit 1
 fi
