@@ -35,7 +35,7 @@ MBUFFER_MEM="1G"
 MBUFFER_BLOCK="128k"
 
 sudo mbuffer -q -Q -m "$MBUFFER_MEM" -s "$MBUFFER_BLOCK" -I "$MBUFFER_PORT" | \
-sudo zfs receive -u "$TARGET_DATASET"
+sudo zfs receive -uF "$TARGET_DATASET"
 ```
 ```
 [Unit]
@@ -52,8 +52,15 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 * zfs mbuffer receive should also be in a cron job since when receiving is done, the process is terminated
+* Backup destination datasets on raspberry pi should stay read-only for normal usage, otherwise next incremental receive can fail with "destination has been modified"
 * Set a timezone if you want your cron job to run when expected
 * `zfs-backup.sh` in a cron job a 3am (since immich database backup is at 2am)
+* To get backup alerts in Uptime Kuma:
+    * Create a `Push` monitor in Uptime Kuma
+    * Copy the generated push URL (`https://<kuma>/api/push/<token>`)
+    * Set `UPTIME_KUMA_PUSH_URL` in `script/zfs-backup.sh`
+    * Script sends `status=up` on success and `status=down` on failure automatically
+    * Since the backup runs once per day at 3am, set the expected push interval to about `24h` and give it a grace window like `26h` or `30h`
 * For magenta to communicate with vpn peer the right ip route should be set : `ip route add 10.8.0.0/24 via 10.10.0.10`
   * This should not be done with `netplan` since `10.10.0.10` resides in a docker network
   * A sudo `crontab` job is run every day at 2am (before the backup) to check if the route exists

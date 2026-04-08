@@ -15,6 +15,7 @@ MBUFFER_PORT=9090                   # TCP port for mbuffer over VPN
 MBUFFER_MEM="1G"
 MBUFFER_BLOCK="128k"
 SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$KNOWN_HOSTS")
+UPTIME_KUMA_PUSH_URL="https://monitor.clsn.fr/api/push/TU1VvNIH14xOdHMIEEp53oEjCOsPPk8t"
 
 DATE="$(date +%F)"
 SNAPSHOT="${SOURCE_POOL}@${SNAP_PREFIX}-${DATE}"
@@ -23,7 +24,43 @@ START_TIME=$SECONDS
 
 exec >> "$LOGFILE" 2>&1
 
-trap 'cp "$LOGFILE" /data/shared/logs/zfs-backup.log' EXIT
+notify_uptime_kuma() {
+    local status="$1"
+    local message="$2"
+    local elapsed_time="$3"
+
+    if [ -z "$UPTIME_KUMA_PUSH_URL" ]; then
+        return 0
+    fi
+
+    set +e
+    curl -fsS --max-time 10 --retry 2 --retry-delay 2 --get \
+        --data-urlencode "status=$status" \
+        --data-urlencode "msg=$message" \
+        --data-urlencode "ping=$elapsed_time" \
+        "$UPTIME_KUMA_PUSH_URL" >/dev/null
+    if [ $? -ne 0 ]; then
+        echo "WARNING: Failed to notify Uptime Kuma"
+    fi
+    set -e
+}
+
+on_exit() {
+    local exit_code=$?
+    local elapsed_time=$(( SECONDS - START_TIME ))
+
+    cp "$LOGFILE" /data/shared/logs/zfs-backup.log
+
+    if [ $exit_code -eq 0 ]; then
+        notify_uptime_kuma "up" "Backup succeeded" "$elapsed_time"
+    else
+        notify_uptime_kuma "down" "Backup failed (code $exit_code)" "$elapsed_time"
+    fi
+
+    exit $exit_code
+}
+
+trap on_exit EXIT
 
 echo "=============================="
 echo "$(date) - Backup started"
@@ -138,5 +175,3 @@ done
 ELAPSED_TIME=$(( SECONDS - START_TIME ))
 
 echo "$(date) - Backup completed successfully in $ELAPSED_TIME seconds"
-
-cp $LOGFILE /data/shared/logs/zfs-backup.log
