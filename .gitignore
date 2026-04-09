@@ -1,4 +1,5 @@
 .env
 compose/infra/wg-easy
+compose/infra/headscale-lib/
 immich-postgres
 uptime-kuma-data

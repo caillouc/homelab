@@ -1,11 +1,3 @@
-config-vpn.clsn.fr {
-	reverse_proxy wg-easy:80
-	tls {
-		dns infomaniak {env.INFOMANIAK_API_TOKEN}
-	}
-	# tls internal
-}
-
 photo.clsn.fr {
 	reverse_proxy immich-server:2283
 	tls {
@@ -27,6 +19,7 @@ monitor.clsn.fr {
 	tls {
 		dns infomaniak {env.INFOMANIAK_API_TOKEN}
 	}
+	# tls internal
 }
 
 flash.clsn.fr {
@@ -34,12 +27,12 @@ flash.clsn.fr {
 	tls {
 		dns infomaniak {env.INFOMANIAK_API_TOKEN}
 	}
+	# tls internal
 }
 
-# pihole.clsn.fr {
-# 	reverse_proxy http://192.168.1.175:5353
-# 	# tls {
-# 	# 	dns infomaniak {env.INFOMANIAK_API_TOKEN}
-# 	# }
-# 	tls internal
-# }
+headscale.clsn.fr {
+	reverse_proxy headscale:8080
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+}

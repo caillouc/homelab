@@ -3,8 +3,7 @@ services:
     image: joplin/server:latest
     container_name: joplin
     networks:
-      wg-easy:
-        ipv4_address: 10.10.0.223
+      proxy:
     restart: unless-stopped
     environment:
       - APP_PORT=22300
@@ -28,8 +27,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks:
-      wg-easy:
-        ipv4_address: 10.10.0.21
+      proxy:
 
   flash-backend:
     build: /home/pierre/rust-file-server/
@@ -39,10 +37,9 @@ services:
     environment:
       - PORT=3030
     networks:
-      wg-easy:
-        ipv4_address: 10.10.0.80
+      proxy:
     restart: unless-stopped
 
 networks:
-  wg-easy:
-    name: wg-easy
+  proxy:
+    name: proxy

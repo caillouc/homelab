@@ -12,8 +12,7 @@ services:
       - immich-postgres
     restart: unless-stopped
     networks:
-      wg-easy:
-        ipv4_address: 10.10.0.13
+      proxy:
     healthcheck:
       disable: false
 
@@ -26,7 +25,7 @@ services:
       - .env
     restart: unless-stopped
     networks:
-      wg-easy:
+      proxy:
     healthcheck:
       disable: false
 
@@ -36,7 +35,7 @@ services:
     healthcheck:
       test: redis-cli ping || exit 1
     networks:
-      wg-easy:
+      proxy:
     restart: unless-stopped
 
   immich-postgres:
@@ -51,12 +50,12 @@ services:
       - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
     shm_size: 128mb
     networks:
-      wg-easy:
+      proxy:
     restart: unless-stopped
 
 volumes:
   model-cache:
 
 networks:
-  wg-easy:
-    name: wg-easy
+  proxy:
+    name: proxy

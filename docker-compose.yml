@@ -5,9 +5,5 @@ include:
   - compose/samba/compose.yml
 
 networks:
-  wg-easy:
-    name: wg-easy
-    ipam:
-      config:
-        - subnet: 10.10.0.0/24
-        - subnet: fdcc:ad94:bacf:61a3::/64
+  proxy:
+    name: proxy

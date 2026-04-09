@@ -5,7 +5,7 @@ set -euo pipefail
 # CONFIG
 # ==========================
 SOURCE_POOL="data"
-TARGET_IP="10.8.0.30"
+TARGET_IP="100.64.0.5"
 TARGET_DATASET="magenta-backup/data"
 SNAP_PREFIX="backup"
 LOGFILE="/var/log/zfs-backup/zfs-backup.log"

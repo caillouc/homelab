@@ -1,0 +1,112 @@
+---
+# Public URL used by clients (must match your reverse proxy/TLS endpoint).
+server_url: https://headscale.clsn.fr
+
+# Keep Headscale internal and terminate TLS in Caddy.
+listen_addr: 0.0.0.0:8080
+metrics_listen_addr: 127.0.0.1:9090
+grpc_listen_addr: 127.0.0.1:50443
+grpc_allow_insecure: false
+
+noise:
+  # Auto-generated on first run if missing.
+  private_key_path: /var/lib/headscale/noise_private.key
+
+# Use official Tailscale ranges.
+prefixes:
+  v4: 100.64.0.0/10
+  v6: fd7a:115c:a1e0::/48
+  allocation: sequential
+
+# Embedded DERP is disabled; clients use Tailscale default DERP map.
+derp:
+  server:
+    enabled: false
+    region_id: 999
+    region_code: "headscale"
+    region_name: "Headscale Embedded DERP"
+    verify_clients: true
+    stun_listen_addr: "0.0.0.0:3478"
+    private_key_path: /var/lib/headscale/derp_server_private.key
+    automatically_add_embedded_derp_region: true
+    ipv4: 198.51.100.1
+    ipv6: 2001:db8::1
+  urls:
+    - https://controlplane.tailscale.com/derpmap/default
+  paths: []
+  auto_update_enabled: true
+  update_frequency: 3h
+
+disable_check_updates: false
+
+node:
+  # 0 = no default expiry for non-tagged nodes.
+  expiry: 0
+  ephemeral:
+    inactivity_timeout: 30m
+
+database:
+  # SQLite is the recommended backend for Headscale.
+  type: sqlite
+  debug: false
+  gorm:
+    prepare_stmt: true
+    parameterized_queries: true
+    skip_err_record_not_found: true
+    slow_threshold: 1000
+  sqlite:
+    path: /var/lib/headscale/db.sqlite
+    write_ahead_log: true
+    wal_autocheckpoint: 1000
+
+  # Leave Headscale TLS empty when TLS is handled by Caddy.
+acme_url: https://acme-v02.api.letsencrypt.org/directory
+acme_email: ""
+tls_letsencrypt_hostname: ""
+tls_letsencrypt_cache_dir: /var/lib/headscale/cache
+tls_letsencrypt_challenge_type: HTTP-01
+tls_letsencrypt_listen: ":http"
+tls_cert_path: ""
+tls_key_path: ""
+
+log:
+  level: info
+  format: text
+
+policy:
+  # Use file mode only if you have an ACL policy file.
+  mode: file
+  path: ""
+
+dns:
+  # MagicDNS disabled; extra_records still provide custom names.
+  magic_dns: false
+  base_domain: example.com
+  override_local_dns: true
+  nameservers:
+    global:
+      - 9.9.9.9
+      - 149.112.112.112
+      - 2620:fe::fe
+      - 2620:fe::9
+    split: {}
+  search_domains: []
+  extra_records:
+    - { name: "photo.clsn.fr", type: "A", value: "100.64.0.1" }
+    - { name: "note.clsn.fr", type: "A", value: "100.64.0.1" }
+    - { name: "monitor.clsn.fr", type: "A", value: "100.64.0.1" }
+    - { name: "flash.clsn.fr", type: "A", value: "100.64.0.1" }
+    - { name: "file.clsn.fr", type: "A", value: "100.64.0.1" }
+    - { name: "magenta.clsn.fr", type: "A", value: "100.64.0.1" }
+
+unix_socket: /var/run/headscale/headscale.sock
+unix_socket_permission: "0770"
+
+# Keep disabled if you do not want clients sending logs to Tailscale.
+logtail:
+  enabled: false
+
+randomize_client_port: false
+
+taildrop:
+  enabled: true
