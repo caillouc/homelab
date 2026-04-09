@@ -1,0 +1,54 @@
+{
+    "groups": {
+        "group:admin": [
+            "pierre@"
+        ]
+    },
+    "tagOwners": {
+        "tag:magenta": [
+            "group:admin"
+        ],
+        "tag:backup": [
+            "group:admin"
+        ]
+    },
+    "acls": [
+        {
+            "action": "accept",
+            "src": [
+                "group:admin"
+            ],
+            "dst": [
+                "*:*"
+            ]
+        },
+        {
+            "action": "accept",
+            "src": [
+                "autogroup:member"
+            ],
+            "dst": [
+                "tag:magenta:2283"
+            ]
+        },
+        {
+            "action": "accept",
+            "src": [
+                "tag:magenta"
+            ],
+            "dst": [
+                "tag:backup:*"
+            ]
+        },
+        {
+            "action": "accept",
+            "src": [
+                "tag:backup"
+            ],
+            "dst": [
+                "tag:magenta:*"
+            ]
+        }
+    ],
+    "ssh": []
+}

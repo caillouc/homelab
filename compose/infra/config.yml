@@ -76,12 +76,12 @@ log:
 policy:
   # Use file mode only if you have an ACL policy file.
   mode: file
-  path: ""
+  path: "/etc/headscale/acl.json"
 
 dns:
-  # MagicDNS disabled; extra_records still provide custom names.
-  magic_dns: false
-  base_domain: example.com
+  # MagicDNS enabled; extra_records provide custom aliases.
+  magic_dns: true
+  base_domain: tail.net
   override_local_dns: true
   nameservers:
     global:
@@ -92,12 +92,11 @@ dns:
     split: {}
   search_domains: []
   extra_records:
-    - { name: "photo.clsn.fr", type: "A", value: "100.64.0.1" }
-    - { name: "note.clsn.fr", type: "A", value: "100.64.0.1" }
-    - { name: "monitor.clsn.fr", type: "A", value: "100.64.0.1" }
-    - { name: "flash.clsn.fr", type: "A", value: "100.64.0.1" }
-    - { name: "file.clsn.fr", type: "A", value: "100.64.0.1" }
-    - { name: "magenta.clsn.fr", type: "A", value: "100.64.0.1" }
+    - { name: "photo.clsn.fr", type: "A", value: "100.64.0.7" }
+    - { name: "note.clsn.fr", type: "A", value: "100.64.0.7" }
+    - { name: "monitor.clsn.fr", type: "A", value: "100.64.0.7" }
+    - { name: "flash.clsn.fr", type: "A", value: "100.64.0.7" }
+    - { name: "file.clsn.fr", type: "A", value: "100.64.0.7" }
 
 unix_socket: /var/run/headscale/headscale.sock
 unix_socket_permission: "0770"

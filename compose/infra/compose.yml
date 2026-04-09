@@ -8,6 +8,7 @@ services:
       - /var/run/headscale
     volumes:
       - ./config.yml:/etc/headscale/config.yaml:ro
+      - ./acl.json:/etc/headscale/acl.json:ro
       - ./headscale-lib:/var/lib/headscale
     networks:
       - proxy
