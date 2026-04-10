@@ -1,4 +1,4 @@
-photo.clsn.fr {
+photo.clsn.fr:8443 {
 	reverse_proxy immich-server:2283
 	tls {
 		dns infomaniak {env.INFOMANIAK_API_TOKEN}

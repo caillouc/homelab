@@ -26,6 +26,7 @@ services:
       - "80:80"
       - "443:443"
       - "443:443/udp"
+      - "8443:8443"
     volumes:
       - ./caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data

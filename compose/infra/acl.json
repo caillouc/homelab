@@ -2,6 +2,9 @@
     "groups": {
         "group:admin": [
             "pierre@"
+        ],
+        "group:immich-users": [
+            "antoine@"
         ]
     },
     "tagOwners": {
@@ -25,10 +28,10 @@
         {
             "action": "accept",
             "src": [
-                "autogroup:member"
+                "group:immich-users"
             ],
             "dst": [
-                "tag:magenta:2283"
+                "tag:magenta:8443"
             ]
         },
         {
