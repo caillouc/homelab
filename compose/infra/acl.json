@@ -5,6 +5,9 @@
         ],
         "group:immich-users": [
             "antoine@"
+        ],
+	"group:vpn-users": [
+            "antoine@"
         ]
     },
     "tagOwners": {
@@ -51,6 +54,20 @@
             "dst": [
                 "tag:magenta:*"
             ]
+        },
+	        {
+            "action": "accept",
+            "src": [
+                "group:vpn-users"
+            ],
+            "dst": [
+                "autogroup:internet:*"
+            ]
+        },
+        {
+            "action": "accept",
+	    "src": ["antoine@"],
+	    "dst": ["antoine@:*"]
         }
     ],
     "ssh": []
