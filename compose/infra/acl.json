@@ -6,8 +6,12 @@
         "group:immich-users": [
             "antoine@"
         ],
-	"group:vpn-users": [
+        "group:vpn-users": [
             "antoine@"
+        ],
+        "group:minecraft-users": [
+            "antoine@",
+	    "alex@"
         ]
     },
     "tagOwners": {
@@ -55,7 +59,7 @@
                 "tag:magenta:*"
             ]
         },
-	        {
+        {
             "action": "accept",
             "src": [
                 "group:vpn-users"
@@ -66,8 +70,21 @@
         },
         {
             "action": "accept",
-	    "src": ["antoine@"],
-	    "dst": ["antoine@:*"]
+            "src": [
+                "group:minecraft-users"
+            ],
+            "dst": [
+                "tag:magenta:25565"
+            ]
+        },
+        {
+            "action": "accept",
+            "src": [
+                "antoine@"
+            ],
+            "dst": [
+                "antoine@:*"
+            ]
         }
     ],
     "ssh": []
