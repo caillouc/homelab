@@ -30,6 +30,14 @@ flash.clsn.fr {
 	# tls internal
 }
 
+weatherbot.clsn.fr {
+	reverse_proxy weatherbot-dashboard:8787
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+	# tls internal
+}
+
 headscale.clsn.fr {
 	reverse_proxy headscale:8080
 	tls {
