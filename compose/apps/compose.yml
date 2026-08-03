@@ -48,6 +48,7 @@ services:
       proxy:
     volumes:
       - /:/rootfs:ro
+      - /sys:/sys:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./glances.conf:/glances/conf/glances.conf:ro
     read_only: true
