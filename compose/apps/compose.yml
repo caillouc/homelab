@@ -40,6 +40,23 @@ services:
       proxy:
     restart: unless-stopped
 
+  glances:
+    image: nicolargo/glances:latest-full
+    container_name: glances
+    restart: unless-stopped
+    networks:
+      proxy:
+    volumes:
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./glances.conf:/glances/conf/glances.conf:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    environment:
+      - GLANCES_OPT=-C /glances/conf/glances.conf -w
+      - TZ=Europe/Paris
+
 networks:
   proxy:
     name: proxy

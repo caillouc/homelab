@@ -22,6 +22,14 @@ monitor.clsn.fr {
 	# tls internal
 }
 
+perf.clsn.fr {
+	reverse_proxy glances:61208
+	tls {
+		dns infomaniak {env.INFOMANIAK_API_TOKEN}
+	}
+	# tls internal
+}
+
 flash.clsn.fr {
 	reverse_proxy flash-backend:3030
 	tls {
